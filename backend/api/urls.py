@@ -1,0 +1,21 @@
+from django.urls import path
+from api import views
+
+urlpatterns = [
+    path("auth/me/", views.CurrentUserView.as_view()),
+    path("auth/register/", views.RegisterView.as_view()),
+    path("auth/login/", views.LoginView.as_view()),
+    path("auth/logout/", views.LogoutView.as_view()),
+    path("workshop-types/", views.WorkshopTypeListView.as_view()),
+    path("workshop-types/<int:pk>/", views.WorkshopTypeDetailView.as_view()),
+    path("workshops/coordinator/", views.CoordinatorWorkshopListView.as_view()),
+    path("workshops/instructor/", views.InstructorWorkshopListView.as_view()),
+    path("workshops/propose/", views.ProposeWorkshopView.as_view()),
+    path("workshops/<int:pk>/accept/", views.AcceptWorkshopView.as_view()),
+    path("workshops/<int:pk>/change-date/", views.ChangeWorkshopDateView.as_view()),
+    path("workshops/<int:pk>/", views.WorkshopDetailView.as_view()),
+    path("workshops/<int:workshop_id>/comments/", views.CommentCreateView.as_view()),
+    path("profile/", views.ProfileView.as_view()),
+    path("statistics/public/", views.PublicStatisticsView.as_view()),
+    path("filter-options/", views.FilterOptionsView.as_view()),
+]
