@@ -5,6 +5,11 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import WorkshopDetails from "./pages/WorkshopDetails";
+import ProposeWorkshop from "./pages/ProposeWorkshop";
+import Profile from "./pages/Profile";
+import Statistics from "./pages/Statistics";
+import WorkshopTypes from "./pages/WorkshopTypes";
 import { Loader2 } from "lucide-react";
 
 function ProtectedRoute({ children }) {
@@ -35,6 +40,32 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/workshop/:id"
+          element={
+            <ProtectedRoute>
+              <WorkshopDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/propose"
+          element={
+            <ProtectedRoute>
+              <ProposeWorkshop />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/statistics" element={<Statistics />} />
+        <Route path="/workshop-types" element={<WorkshopTypes />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
