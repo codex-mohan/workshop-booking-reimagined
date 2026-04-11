@@ -6,6 +6,7 @@ import {
   Calendar, Clock, MapPin, PlusCircle, CheckCircle,
   AlertCircle, Loader2, BookOpen,
 } from "lucide-react";
+import { SkeletonStatCard, SkeletonRow, SkeletonCard } from "../components/Skeleton";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -37,8 +38,21 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div>
+        <div className="mb-8">
+          <div className="h-7 w-48 bg-gray-200 rounded-md animate-pulse mb-2" />
+          <div className="h-4 w-64 bg-gray-200 rounded-md animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <SkeletonStatCard />
+          <SkeletonStatCard />
+          <SkeletonStatCard />
+        </div>
+        <div className="space-y-3">
+          <SkeletonRow />
+          <SkeletonRow />
+          <SkeletonRow />
+        </div>
       </div>
     );
   }

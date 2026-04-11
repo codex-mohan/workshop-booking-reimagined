@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { workshopApi, workshopTypeApi } from "../api/endpoints";
 import { PlusCircle, Calendar, FileText, Loader2, AlertCircle } from "lucide-react";
+import { Skeleton } from "../components/Skeleton";
 
 export default function ProposeWorkshop() {
   const navigate = useNavigate();
@@ -64,8 +65,18 @@ export default function ProposeWorkshop() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="h-7 w-48 bg-gray-200 rounded-md animate-pulse" />
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-7 space-y-5">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-5 w-56" />
+          <Skeleton className="h-10 w-full" />
+        </div>
       </div>
     );
   }

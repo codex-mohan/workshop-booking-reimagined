@@ -4,6 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { BarChart3, Filter, Loader2, Calendar, MapPin } from "lucide-react";
+import { SkeletonChart, SkeletonRow } from "../components/Skeleton";
 
 export default function Statistics() {
   const [data, setData] = useState(null);
@@ -50,8 +51,20 @@ export default function Statistics() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div>
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="h-7 w-48 bg-gray-200 rounded-md animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <SkeletonChart />
+          <SkeletonChart />
+        </div>
+        <div className="space-y-2">
+          <SkeletonRow />
+          <SkeletonRow />
+          <SkeletonRow />
+        </div>
       </div>
     );
   }

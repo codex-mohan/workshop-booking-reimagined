@@ -6,6 +6,7 @@ import {
   Calendar, MapPin, User, MessageSquare, Send,
   ArrowLeft, Loader2, CheckCircle, Clock,
 } from "lucide-react";
+import { SkeletonText, Skeleton } from "../components/Skeleton";
 
 export default function WorkshopDetails() {
   const { id } = useParams();
@@ -52,8 +53,27 @@ export default function WorkshopDetails() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div>
+        <div className="h-4 w-20 bg-gray-200 rounded-md animate-pulse mb-4" />
+        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="h-6 w-48 bg-gray-200 rounded-md animate-pulse" />
+              <div className="h-5 w-16 bg-gray-200 rounded-full animate-pulse" />
+            </div>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-4 w-44" />
+            </div>
+            <div className="border-t border-gray-100 pt-6">
+              <SkeletonText lines={4} />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

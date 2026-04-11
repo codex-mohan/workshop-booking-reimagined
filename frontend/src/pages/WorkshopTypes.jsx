@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { workshopTypeApi } from "../api/endpoints";
 import { BookOpen, Clock, FileText, Loader2 } from "lucide-react";
+import { SkeletonCard } from "../components/Skeleton";
 
 export default function WorkshopTypes() {
   const [types, setTypes] = useState([]);
@@ -22,8 +23,19 @@ export default function WorkshopTypes() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div>
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="h-7 w-44 bg-gray-200 rounded-md animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
       </div>
     );
   }
