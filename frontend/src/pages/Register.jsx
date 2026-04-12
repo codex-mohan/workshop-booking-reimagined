@@ -102,7 +102,7 @@ export default function Register() {
             <SelectField label="Title" name="title" value={form.title} onChange={handleChange}
               options={[["Mr", "Mr."], ["Mrs", "Mrs."], ["Miss", "Ms."], ["Professor", "Prof."], ["Doctor", "Dr."]]} />
             <SelectField label="Department" name="department" value={form.department} onChange={handleChange}
-              options={[["computer engineering", "Computer Science"], ["information technology", "Information Technology"], ["civil engineering", "Civil Engineering"], ["electrical engineering", "Electrical Engineering"], ["mechanical engineering", "Mechanical Engineering"]]} />
+              options={[["computer engineering", "Computer Science"], ["information technology", "Information Technology"], ["civil engineering", "Civil Engineering"], ["electrical engineering", "Electrical Engineering"], ["mechanical engineering", "Mechanical Engineering"], ["chemical engineering", "Chemical Engineering"], ["aerospace engineering", "Aerospace Engineering"], ["biosciences and bioengineering", "Biosciences and BioEngineering"], ["electronics", "Electronics"], ["energy science and engineering", "Energy Science and Engineering"]]} />
           </div>
 
           <Field label="City / Location" name="location" value={form.location} onChange={handleChange} placeholder="e.g. Mumbai" />
