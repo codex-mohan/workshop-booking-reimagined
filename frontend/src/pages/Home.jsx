@@ -6,21 +6,21 @@ export default function Home() {
   const { user } = useAuth();
 
   return (
-    <div>
-      <div className="text-center py-12 sm:py-20">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent rounded-full text-sm font-medium mb-6">
+    <div className="animate-fade-in">
+      <div className="text-center py-8 sm:py-10">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent rounded-full text-sm font-medium mb-6 animate-fade-up">
           <GraduationCap className="w-4 h-4" />
           IIT Bombay
         </div>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4 leading-tight">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4 leading-tight animate-fade-up animate-delay-100">
           FOSSEE<br className="sm:hidden" /> Workshop Booking
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-up animate-delay-200">
           Book and manage workshops conducted by FOSSEE. Coordinators propose workshops at their
           institution, and instructors accept and conduct them across India.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-up animate-delay-300">
           {user ? (
             <Link
               to="/dashboard"
@@ -49,21 +49,24 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-8">
         <FeatureCard
           icon={<BookOpen className="w-7 h-7" />}
           title="Book Workshops"
           description="Propose workshops at your institution with available FOSSEE instructors"
+          delay="animate-delay-300"
         />
         <FeatureCard
           icon={<BarChart3 className="w-7 h-7" />}
           title="View Statistics"
           description="Explore workshop data across India with interactive charts and filters"
+          delay="animate-delay-400"
         />
         <FeatureCard
           icon={<Users className="w-7 h-7" />}
           title="Manage Profiles"
           description="Keep your institutional details updated for smooth coordination"
+          delay="animate-delay-400"
         />
       </div>
 
@@ -83,9 +86,9 @@ export default function Home() {
   );
 }
 
-function FeatureCard({ icon, title, description }) {
+function FeatureCard({ icon, title, description, delay }) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-accent/20 transition-all">
+    <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover animate-fade-up ${delay || ""}`}>
       <div className="text-accent mb-3">{icon}</div>
       <h3 className="font-semibold text-gray-800 mb-2">{title}</h3>
       <p className="text-sm text-gray-500 leading-relaxed">{description}</p>

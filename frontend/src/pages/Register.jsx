@@ -44,7 +44,7 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-8 sm:mt-12">
+    <div className="max-w-lg mx-auto mt-6 sm:mt-8 animate-scale-in">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 sm:p-8">
         <div className="flex items-center justify-center gap-2 mb-6">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">

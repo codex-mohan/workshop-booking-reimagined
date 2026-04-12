@@ -28,7 +28,7 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 sm:mt-16">
+    <div className="max-w-md mx-auto mt-6 sm:mt-8 animate-scale-in">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 sm:p-8">
         <div className="flex items-center justify-center gap-2 mb-6">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -88,7 +88,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed btn-press"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
