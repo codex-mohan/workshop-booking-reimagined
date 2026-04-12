@@ -32,13 +32,15 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     const res = await authApi.login(username, password);
+    await api.get("/auth/csrf-token/");
     setUser(res.data);
     return res.data;
   };
 
   const register = async (data) => {
     const res = await authApi.register(data);
-    await fetchUser();
+    await api.get("/auth/csrf-token/");
+    setUser(res.data);
     return res.data;
   };
 

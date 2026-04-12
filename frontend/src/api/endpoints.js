@@ -6,6 +6,7 @@ export const authApi = {
   register: (data) => api.post("/auth/register/", data),
   logout: () => api.post("/auth/logout/"),
   getMe: () => api.get("/auth/me/"),
+  activate: (key) => api.get(`/auth/activate/${key}/`),
 };
 
 export const workshopApi = {
@@ -14,6 +15,7 @@ export const workshopApi = {
   getWorkshop: (id) => api.get(`/workshops/${id}/`),
   proposeWorkshop: (data) => api.post("/workshops/propose/", data),
   acceptWorkshop: (id) => api.post(`/workshops/${id}/accept/`),
+  rejectWorkshop: (id) => api.post(`/workshops/${id}/reject/`),
   changeWorkshopDate: (id, newDate) =>
     api.post(`/workshops/${id}/change-date/`, { new_date: newDate }),
   addComment: (workshopId, data) =>
@@ -23,7 +25,9 @@ export const workshopApi = {
 export const workshopTypeApi = {
   list: () => api.get("/workshop-types/"),
   get: (id) => api.get(`/workshop-types/${id}/`),
-  getTnC: (id) => api.get(`/workshop-types/${id}/tnc/`),
+  getTnC: (id) => api.get(`/workshop-types/${id}/`),
+  create: (data) => api.post("/workshop-types/create/", data),
+  update: (id, data) => api.put(`/workshop-types/${id}/update/`, data),
 };
 
 export const profileApi = {
