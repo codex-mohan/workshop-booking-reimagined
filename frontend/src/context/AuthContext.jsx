@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import api from "../api/client";
 import { authApi } from "../api/endpoints";
 
 const AuthContext = createContext(null);
@@ -9,6 +10,7 @@ export function AuthProvider({ children }) {
 
   const fetchUser = useCallback(async () => {
     try {
+      await api.get("/auth/csrf-token/");
       const res = await authApi.getMe();
       setUser(res.data);
     } catch {

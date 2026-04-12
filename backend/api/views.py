@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models import Q
 from rest_framework import generics, status, permissions
 from rest_framework.decorators import api_view, permission_classes
+from django.middleware.csrf import get_token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,6 +32,14 @@ from .serializers import (
     CommentSerializer,
     RegisterSerializer,
 )
+
+
+class CSRFTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        get_token(request)
+        return Response({"detail": "CSRF token set"})
 
 
 class CurrentUserView(APIView):
