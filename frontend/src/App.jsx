@@ -1,10 +1,10 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, Component } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -22,6 +22,37 @@ function PageLoader() {
   );
 }
 
+class ErrorBoundary extends Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    console.error("Page crashed:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mb-3" />
+          <h2 className="text-lg font-semibold text-gray-700">Something went wrong</h2>
+          <p className="text-sm text-gray-500 mt-1">Please refresh the page to try again.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-5 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+          >
+            Refresh Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <PageLoader />;
@@ -33,27 +64,27 @@ function AppRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Suspense fallback={<PageLoader />}><Register /></Suspense>} />
+        <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+        <Route path="/login" element={<ErrorBoundary><Login /></ErrorBoundary>} />
+        <Route path="/register" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><Register /></Suspense></ErrorBoundary>} />
         <Route
           path="/dashboard"
-          element={<ProtectedRoute><Suspense fallback={<PageLoader />}><Dashboard /></Suspense></ProtectedRoute>}
+          element={<ProtectedRoute><ErrorBoundary><Suspense fallback={<PageLoader />}><Dashboard /></Suspense></ErrorBoundary></ProtectedRoute>}
         />
         <Route
           path="/workshop/:id"
-          element={<ProtectedRoute><Suspense fallback={<PageLoader />}><WorkshopDetails /></Suspense></ProtectedRoute>}
+          element={<ProtectedRoute><ErrorBoundary><Suspense fallback={<PageLoader />}><WorkshopDetails /></Suspense></ErrorBoundary></ProtectedRoute>}
         />
         <Route
           path="/propose"
-          element={<ProtectedRoute><Suspense fallback={<PageLoader />}><ProposeWorkshop /></Suspense></ProtectedRoute>}
+          element={<ProtectedRoute><ErrorBoundary><Suspense fallback={<PageLoader />}><ProposeWorkshop /></Suspense></ErrorBoundary></ProtectedRoute>}
         />
         <Route
           path="/profile"
-          element={<ProtectedRoute><Suspense fallback={<PageLoader />}><Profile /></Suspense></ProtectedRoute>}
+          element={<ProtectedRoute><ErrorBoundary><Suspense fallback={<PageLoader />}><Profile /></Suspense></ErrorBoundary></ProtectedRoute>}
         />
-        <Route path="/statistics" element={<Suspense fallback={<PageLoader />}><Statistics /></Suspense>} />
-        <Route path="/workshop-types" element={<Suspense fallback={<PageLoader />}><WorkshopTypes /></Suspense>} />
+        <Route path="/statistics" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><Statistics /></Suspense></ErrorBoundary>} />
+        <Route path="/workshop-types" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><WorkshopTypes /></Suspense></ErrorBoundary>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
