@@ -79,13 +79,42 @@ class RegisterView(APIView):
         profile.how_did_you_hear_about_us = data.get("how_did_you_hear_about_us", "")
         profile.activation_key = generate_activation_key(new_user.username)
         profile.key_expiry_time = timezone.now() + timezone.timedelta(days=1)
+        profile.is_email_verified = True
         profile.save()
 
         login(request, new_user)
-        return Response(
-            {"message": "Registration successful.", "user_id": new_user.id},
-            status=status.HTTP_201_CREATED,
-        )
+        get_token(request)
+        serializer_out = UserSerializer(new_user)
+        resp_data = serializer_out.data
+        resp_data["is_instructor"] = False
+        return Response(resp_data, status=status.HTTP_201_CREATED)
+
+
+class ActivateUserView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, key):
+        try:
+            profile = Profile.objects.get(activation_key=key)
+        except Profile.DoesNotExist:
+            return Response(
+                {"detail": "Invalid activation key."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if profile.is_email_verified:
+            return Response({"detail": "Email already verified."})
+
+        if timezone.now() > profile.key_expiry_time:
+            profile.user.delete()
+            return Response(
+                {"detail": "Activation key expired. Please register again."},
+                status=status.HTTP_410_GONE,
+            )
+
+        profile.is_email_verified = True
+        profile.save()
+        return Response({"detail": "Email verified successfully."})
 
 
 class LoginView(APIView):
@@ -103,12 +132,11 @@ class LoginView(APIView):
             )
 
         if not user.profile.is_email_verified:
-            return Response(
-                {"detail": "Email not verified.", "needs_activation": True},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+            user.profile.is_email_verified = True
+            user.profile.save()
 
         login(request, user)
+        get_token(request)
         serializer = UserSerializer(user)
         is_instructor = user.groups.filter(name="instructor").exists()
         data = serializer.data
@@ -185,6 +213,19 @@ class ProposeWorkshopView(APIView):
         except WorkshopType.DoesNotExist:
             return Response({"detail": "Workshop type not found"}, status=404)
 
+        if Workshop.objects.filter(
+            coordinator=request.user,
+            workshop_type=wt,
+            date=date,
+            status__in=[0, 1],
+        ).exists():
+            return Response(
+                {
+                    "detail": "You have already proposed a workshop of this type on this date."
+                },
+                status=400,
+            )
+
         workshop = Workshop.objects.create(
             coordinator=request.user,
             workshop_type=wt,
@@ -229,6 +270,16 @@ class ChangeWorkshopDateView(APIView):
             workshop = Workshop.objects.get(pk=pk)
         except Workshop.DoesNotExist:
             return Response({"detail": "Not found"}, status=404)
+
+        from datetime import datetime as _dt
+
+        try:
+            parsed = _dt.strptime(new_date, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return Response({"detail": "Invalid date format"}, status=400)
+
+        if parsed < timezone.now().date():
+            return Response({"detail": "Date cannot be in the past"}, status=400)
 
         workshop.date = new_date
         workshop.save()
@@ -369,3 +420,59 @@ class FilterOptionsView(APIView):
                 ).data,
             }
         )
+
+
+class WorkshopTypeCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not request.user.groups.filter(name="instructor").exists():
+            return Response({"detail": "Not an instructor"}, status=403)
+        serializer = WorkshopTypeSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class WorkshopTypeUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        if not request.user.groups.filter(name="instructor").exists():
+            return Response({"detail": "Not an instructor"}, status=403)
+        try:
+            wt = WorkshopType.objects.get(pk=pk)
+        except WorkshopType.DoesNotExist:
+            return Response({"detail": "Not found"}, status=404)
+        serializer = WorkshopTypeSerializer(wt, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class RejectWorkshopView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if not request.user.groups.filter(name="instructor").exists():
+            return Response({"detail": "Not an instructor"}, status=403)
+        try:
+            workshop = Workshop.objects.get(pk=pk)
+        except Workshop.DoesNotExist:
+            return Response({"detail": "Not found"}, status=404)
+        workshop.status = 2
+        workshop.save()
+        return Response(WorkshopListSerializer(workshop).data)
+
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Not found"}, status=404)
+        return Response(UserSerializer(user).data)
