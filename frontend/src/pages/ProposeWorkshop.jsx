@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { workshopApi, workshopTypeApi } from "../api/endpoints";
+import { useMinLoading } from "../hooks/useMinLoading";
 import { PlusCircle, Calendar, FileText, Loader2, AlertCircle } from "lucide-react";
 import { Skeleton } from "../components/Skeleton";
 
+function unwrap(res) {
+  return res.data.results ?? res.data;
+}
+
 export default function ProposeWorkshop() {
   const navigate = useNavigate();
-  const [workshopTypes, setWorkshopTypes] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -17,18 +20,14 @@ export default function ProposeWorkshop() {
   });
   const [tncContent, setTncContent] = useState("");
 
-  useEffect(() => {
-    async function fetchTypes() {
-      try {
-        const res = await workshopTypeApi.list();
-        setWorkshopTypes(res.data);
-      } catch {
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchTypes();
-  }, []);
+  const { loading, data: workshopTypes } = useMinLoading(
+    async () => {
+      const res = await workshopTypeApi.list();
+      return unwrap(res);
+    },
+    [],
+    600
+  );
 
   const handleTypeChange = async (e) => {
     const typeId = e.target.value;
@@ -36,7 +35,7 @@ export default function ProposeWorkshop() {
     if (typeId) {
       try {
         const res = await workshopTypeApi.getTnC(typeId);
-        setTncContent(res.data.terms_and_conditions);
+        setTncContent(res.data.terms_and_conditions || "");
       } catch {
         setTncContent("Could not load terms and conditions.");
       }
@@ -82,7 +81,7 @@ export default function ProposeWorkshop() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="flex items-center gap-2 mb-6">
         <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
           <PlusCircle className="w-5 h-5 text-accent" />
@@ -98,72 +97,80 @@ export default function ProposeWorkshop() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label htmlFor="workshop_type" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Workshop Type
-            </label>
-            <select
-              id="workshop_type"
-              value={form.workshop_type}
-              onChange={handleTypeChange}
-              required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm bg-white"
-            >
-              <option value="">Select a workshop type</option>
-              {workshopTypes.map((wt) => (
-                <option key={wt.id} value={wt.id}>{wt.name} ({wt.duration} day{wt.duration > 1 ? "s" : ""})</option>
-              ))}
-            </select>
+        {!workshopTypes || workshopTypes.length === 0 ? (
+          <div className="text-center py-12">
+            <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+            <p className="text-gray-500">No workshop types available yet.</p>
+            <p className="text-gray-400 text-sm mt-1">Please check back later or contact an admin.</p>
           </div>
-
-          <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1.5">
-              <Calendar className="w-4 h-4 inline mr-1" />
-              Preferred Date
-            </label>
-            <input
-              id="date"
-              type="date"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              required
-              min={new Date().toISOString().split("T")[0]}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm"
-            />
-          </div>
-
-          {tncContent && (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-2">
-                <FileText className="w-4 h-4" /> Terms & Conditions
-              </div>
-              <p className="text-sm text-gray-600 whitespace-pre-wrap max-h-40 overflow-y-auto">
-                {tncContent}
-              </p>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="workshop_type" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Workshop Type
+              </label>
+              <select
+                id="workshop_type"
+                value={form.workshop_type}
+                onChange={handleTypeChange}
+                required
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm bg-white"
+              >
+                <option value="">Select a workshop type</option>
+                {workshopTypes.map((wt) => (
+                  <option key={wt.id} value={wt.id}>{wt.name} ({wt.duration} day{wt.duration > 1 ? "s" : ""})</option>
+                ))}
+              </select>
             </div>
-          )}
 
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.tnc_accepted}
-              onChange={(e) => setForm({ ...form, tnc_accepted: e.target.checked })}
-              className="mt-1 w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
-            />
-            <span className="text-sm text-gray-600">
-              I accept the terms and conditions for this workshop
-            </span>
-          </label>
+            <div>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <Calendar className="w-4 h-4 inline mr-1" />
+                Preferred Date
+              </label>
+              <input
+                id="date"
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+                required
+                min={new Date().toISOString().split("T")[0]}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={submitting || !form.tnc_accepted}
-            className="w-full py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium disabled:opacity-50"
-          >
-            {submitting ? "Submitting..." : "Propose Workshop"}
-          </button>
-        </form>
+            {tncContent && (
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-2">
+                  <FileText className="w-4 h-4" /> Terms & Conditions
+                </div>
+                <p className="text-sm text-gray-600 whitespace-pre-wrap max-h-40 overflow-y-auto">
+                  {tncContent}
+                </p>
+              </div>
+            )}
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.tnc_accepted}
+                onChange={(e) => setForm({ ...form, tnc_accepted: e.target.checked })}
+                className="mt-1 w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
+              />
+              <span className="text-sm text-gray-600">
+                I accept the terms and conditions for this workshop
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={submitting || !form.tnc_accepted}
+              className="w-full py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium disabled:opacity-50"
+            >
+              {submitting ? "Submitting..." : "Propose Workshop"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

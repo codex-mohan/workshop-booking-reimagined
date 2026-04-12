@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { statsApi, filterApi } from "../api/endpoints";
+import { useMinLoading } from "../hooks/useMinLoading";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
@@ -7,46 +8,32 @@ import { BarChart3, Filter, Loader2, Calendar, MapPin } from "lucide-react";
 import { SkeletonChart, SkeletonRow } from "../components/Skeleton";
 
 export default function Statistics() {
-  const [data, setData] = useState(null);
-  const [filters, setFilters] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedType, setSelectedType] = useState("");
 
-  useEffect(() => {
-    async function fetch() {
-      try {
-        const [statsRes, filterRes] = await Promise.all([
-          statsApi.getPublicStats(),
-          filterApi.getOptions(),
-        ]);
-        setData(statsRes.data);
-        setFilters(filterRes.data);
-      } catch {
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetch();
-  }, []);
+  const { loading, data, error, setData } = useMinLoading(
+    async () => {
+      const [statsRes, filterRes] = await Promise.all([
+        statsApi.getPublicStats(),
+        filterApi.getOptions(),
+      ]);
+      return { stats: statsRes.data, filters: filterRes.data };
+    },
+    [],
+    800
+  );
 
   const applyFilters = async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (fromDate) params.from_date = fromDate;
-      if (toDate) params.to_date = toDate;
-      if (selectedState) params.state = selectedState;
-      if (selectedType) params.workshop_type = selectedType;
-      const res = await statsApi.getPublicStats(params);
-      setData(res.data);
-    } catch {
-    } finally {
-      setLoading(false);
-    }
+    const params = {};
+    if (fromDate) params.from_date = fromDate;
+    if (toDate) params.to_date = toDate;
+    if (selectedState) params.state = selectedState;
+    if (selectedType) params.workshop_type = selectedType;
+    const res = await statsApi.getPublicStats(params);
+    setData({ stats: res.data, filters: data?.filters });
   };
 
   if (loading) {
@@ -69,18 +56,21 @@ export default function Statistics() {
     );
   }
 
-  const stateChartData = (data?.state_chart?.labels || []).map((label, i) => ({
+  const stats = data?.stats;
+  const filters = data?.filters;
+
+  const stateChartData = (stats?.state_chart?.labels || []).map((label, i) => ({
     state: label,
-    count: data?.state_chart?.data?.[i] || 0,
+    count: stats?.state_chart?.data?.[i] || 0,
   }));
 
-  const typeChartData = (data?.type_chart?.labels || []).map((label, i) => ({
+  const typeChartData = (stats?.type_chart?.labels || []).map((label, i) => ({
     type: label,
-    count: data?.type_chart?.data?.[i] || 0,
+    count: stats?.type_chart?.data?.[i] || 0,
   }));
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
@@ -98,7 +88,7 @@ export default function Statistics() {
       </div>
 
       {showFilters && (
-        <div className="bg-white rounded-xl border border-gray-100 p-5 mb-6">
+        <div className="bg-white rounded-xl border border-gray-100 p-5 mb-6 animate-slide-down">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">From Date</label>
@@ -160,17 +150,17 @@ export default function Statistics() {
       </div>
 
       <h2 className="text-lg font-semibold text-gray-700 mb-3">
-        Upcoming Workshops ({data?.total || 0})
+        Upcoming Workshops ({stats?.total || 0})
       </h2>
 
-      {data?.workshops?.length === 0 ? (
+      {stats?.workshops?.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
           <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-2" />
           <p className="text-gray-500">No upcoming workshops found</p>
         </div>
       ) : (
         <div className="space-y-2">
-          {data?.workshops?.map((ws) => (
+          {stats?.workshops?.map((ws) => (
             <div key={ws.id} className="bg-white rounded-lg p-4 border border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
                 <h3 className="font-medium text-gray-800 text-sm">{ws.workshop_type_name}</h3>
@@ -196,7 +186,7 @@ function ChartCard({ title, data, dataKey, xKey, color }) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-5">
       <h3 className="text-sm font-semibold text-gray-700 mb-4">{title}</h3>
-      {data.length === 0 ? (
+      {!data || data.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-8">No data available</p>
       ) : (
         <ResponsiveContainer width="100%" height={250}>

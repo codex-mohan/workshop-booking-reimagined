@@ -2,39 +2,34 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { workshopApi, workshopTypeApi } from "../api/endpoints";
+import { useMinLoading } from "../hooks/useMinLoading";
 import {
   Calendar, Clock, MapPin, PlusCircle, CheckCircle,
   AlertCircle, Loader2, BookOpen,
 } from "lucide-react";
 import { SkeletonStatCard, SkeletonRow, SkeletonCard } from "../components/Skeleton";
 
+function unwrap(res) {
+  return res.data.results ?? res.data;
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
-  const [workshops, setWorkshops] = useState([]);
-  const [workshopTypes, setWorkshopTypes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const endpoint = user?.is_instructor
-          ? workshopApi.getInstructorWorkshops
-          : workshopApi.getCoordinatorWorkshops;
-        const [wsRes, typesRes] = await Promise.all([
-          endpoint(),
-          workshopTypeApi.list(),
-        ]);
-        setWorkshops(wsRes.data);
-        setWorkshopTypes(typesRes.data);
-      } catch (err) {
-        setError("Failed to load workshops");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [user]);
+  const { loading, data, error, setData: _ } = useMinLoading(
+    async () => {
+      const endpoint = user?.is_instructor
+        ? workshopApi.getInstructorWorkshops
+        : workshopApi.getCoordinatorWorkshops;
+      const [wsRes, typesRes] = await Promise.all([
+        endpoint(),
+        workshopTypeApi.list(),
+      ]);
+      return { workshops: unwrap(wsRes), workshopTypes: unwrap(typesRes) };
+    },
+    [user],
+    600
+  );
 
   if (loading) {
     return (
@@ -57,11 +52,13 @@ export default function Dashboard() {
     );
   }
 
+  const workshops = data?.workshops || [];
+  const workshopTypes = data?.workshopTypes || [];
   const pending = workshops.filter((w) => w.status === 0);
   const accepted = workshops.filter((w) => w.status === 1);
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
@@ -82,12 +79,6 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Total Workshops" value={workshops.length} icon={<BookOpen className="w-5 h-5" />} color="bg-primary/10 text-primary" />
-        <StatCard label="Pending" value={pending.length} icon={<Clock className="w-5 h-5" />} color="bg-warning/10 text-amber-600" />
-        <StatCard label="Accepted" value={accepted.length} icon={<CheckCircle className="w-5 h-5" />} color="bg-success/10 text-success" />
-      </div>
-
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>
       )}
@@ -103,14 +94,21 @@ export default function Dashboard() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-700">
-            {user?.is_instructor ? "Pending Requests" : "Your Workshops"}
-          </h2>
-          {workshops.map((ws) => (
-            <WorkshopCard key={ws.id} workshop={ws} isInstructor={user?.is_instructor} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <StatCard label="Total Workshops" value={workshops.length} icon={<BookOpen className="w-5 h-5" />} color="bg-primary/10 text-primary" />
+            <StatCard label="Pending" value={pending.length} icon={<Clock className="w-5 h-5" />} color="bg-warning/10 text-amber-600" />
+            <StatCard label="Accepted" value={accepted.length} icon={<CheckCircle className="w-5 h-5" />} color="bg-success/10 text-success" />
+          </div>
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold text-gray-700">
+              {user?.is_instructor ? "Pending Requests" : "Your Workshops"}
+            </h2>
+            {workshops.map((ws) => (
+              <WorkshopCard key={ws.id} workshop={ws} isInstructor={user?.is_instructor} />
+            ))}
+          </div>
+        </>
       )}
 
       {workshopTypes.length > 0 && (
