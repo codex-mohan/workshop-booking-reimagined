@@ -2,52 +2,6 @@
 
 A modern redesign of the [FOSSEE Workshop Booking](https://github.com/FOSSEE/workshop_booking) portal. The original site was a Django 1.10 monolith with Bootstrap 4, jQuery, and server-rendered templates. This version separates the frontend into a React SPA and adds a Django REST API layer, while upgrading the backend to Django 5.2 LTS.
 
-## Visual Comparison
-
-### Home Page
-| Desktop | Mobile |
-|---------|--------|
-| ![Home Desktop](screenshots/home-pc.png) | _(pending: old version)_ |
-| _(pending: reimagined)_ | ![Home Mobile](screenshots/home-mobile.png) |
-
-### Login
-| Desktop | Mobile |
-|---------|--------|
-| ![Login Desktop](screenshots/login-pc.png) | _(pending: old version)_ |
-| _(pending: reimagined)_ | ![Login Mobile](screenshots/login-mobile.png) |
-
-### Registration
-| Desktop | Mobile |
-|---------|--------|
-| ![Register Desktop](screenshots/register-pc.png) | _(pending: old version)_ |
-| _(pending: reimagined)_ | ![Register Mobile](screenshots/register-mobile.png) |
-
-### Dashboard
-| Desktop | Mobile |
-|---------|--------|
-| ![Dashboard Desktop](screenshots/dashboard-pc.png) | _(pending: old version)_ |
-| _(pending: reimagined)_ | ![Dashboard Mobile](screenshots/dashboard-mobile.png) |
-
-### Statistics
-| Desktop | Mobile |
-|---------|--------|
-| ![Statistics Desktop](screenshots/statistics-pc.png) | _(pending: old version)_ |
-| _(pending: reimagined)_ | ![Statistics Mobile](screenshots/statistics-mobile.png) |
-
-### Workshop Types
-| Desktop | Mobile |
-|---------|--------|
-| ![Workshop Types Desktop](screenshots/workshop-types-pc.png) | _(pending: old version)_ |
-| _(pending: reimagined)_ | ![Workshop Types Mobile](screenshots/workshop-types-mobile.png) |
-
-### Profile
-| Desktop | Mobile |
-|---------|--------|
-| ![Profile Desktop](screenshots/profile-pc.png) | _(pending: old version)_ |
-| _(pending: reimagined)_ | ![Profile Mobile](screenshots/profile-mobile.png) |
-
----
-
 ## Design Principles
 
 **Vercel-inspired minimalism:** The original site used Bootstrap's default blue theme with rounded corners and heavy gradients — a look that immediately reads as "Bootstrap template." I replaced it with a black-and-white neutral palette, sharp borders, and Plus Jakarta Sans at weights 300/400/500/600. No decorative elements. The color comes from content — chart fills, status indicators, and accent blue (#0070f3) for interactive elements.
@@ -100,6 +54,52 @@ The hardest part was bridging the gap between Django's server-rendered template 
 2. **Handle CSRF with session auth** — Django's CSRF protection doesn't work out-of-the-box with a separate dev server. I created a custom `CsrfExemptSessionAuthentication` class that skips DRF's CSRF enforcement while keeping the SPA protected by CORS, SameSite cookies, and session auth.
 
 3. **Replicate permission logic on the client** — The old templates used `{% if user.groups.all.0.name == 'instructor' %}` to conditionally render UI. I expose `is_instructor` and `is_admin` from the API's `/auth/me/` endpoint and use it in React components to show/hide the Propose button, accept/reject buttons, admin panel access, and comment visibility.
+
+---
+
+## Visual Comparison
+
+### Home Page
+| Before | After |
+|--------|-------|
+| _(pending: old version)_ | ![Home Desktop](screenshots/home-pc.png) |
+| _(pending: old version)_ | ![Home Mobile](screenshots/home-mobile.png) |
+
+### Login
+| Before | After |
+|--------|-------|
+| _(pending: old version)_ | ![Login Desktop](screenshots/login-pc.png) |
+| _(pending: old version)_ | ![Login Mobile](screenshots/login-mobile.png) |
+
+### Registration
+| Before | After |
+|--------|-------|
+| _(pending: old version)_ | ![Register Desktop](screenshots/register-pc.png) |
+| _(pending: old version)_ | ![Register Mobile](screenshots/register-mobile.png) |
+
+### Dashboard
+| Before | After |
+|--------|-------|
+| _(pending: old version)_ | ![Dashboard Desktop](screenshots/dashboard-pc.png) |
+| _(pending: old version)_ | ![Dashboard Mobile](screenshots/dashboard-mobile.png) |
+
+### Statistics
+| Before | After |
+|--------|-------|
+| _(pending: old version)_ | ![Statistics Desktop](screenshots/statistics-pc.png) |
+| _(pending: old version)_ | ![Statistics Mobile](screenshots/statistics-mobile.png) |
+
+### Workshop Types
+| Before | After |
+|--------|-------|
+| _(pending: old version)_ | ![Workshop Types Desktop](screenshots/workshop-types-pc.png) |
+| _(pending: old version)_ | ![Workshop Types Mobile](screenshots/workshop-types-mobile.png) |
+
+### Profile
+| Before | After |
+|--------|-------|
+| _(pending: old version)_ | ![Profile Desktop](screenshots/profile-pc.png) |
+| _(pending: old version)_ | ![Profile Mobile](screenshots/profile-mobile.png) |
 
 ---
 
