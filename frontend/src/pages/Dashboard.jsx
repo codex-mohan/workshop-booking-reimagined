@@ -218,7 +218,12 @@ function WorkshopCard({ workshop, isInstructor, index }) {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {isInstructor && workshop.status === 0 && <AcceptButton workshopId={workshop.id} />}
+          {isInstructor && workshop.status === 0 && (
+            <>
+              <AcceptButton workshopId={workshop.id} />
+              <RejectButton workshopId={workshop.id} />
+            </>
+          )}
           <Link to={`/workshop/${workshop.id}`} className="px-3 py-1.5 text-xs font-medium hover:bg-surface transition-colors">
             View &rarr;
           </Link>
@@ -254,6 +259,34 @@ function AcceptButton({ workshopId }) {
     <button onClick={handleAccept} disabled={loading} className="px-3 py-1.5 bg-black text-white text-xs font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 inline-flex items-center gap-1">
       {loading && <Loader2 className="w-3 h-3 animate-spin" />}
       {loading ? "Accepting..." : "Accept"}
+    </button>
+  );
+}
+
+function RejectButton({ workshopId }) {
+  const [loading, setLoading] = useState(false);
+  const [rejected, setRejected] = useState(false);
+
+  const handleReject = async () => {
+    setLoading(true);
+    try {
+      await workshopApi.rejectWorkshop(workshopId);
+      setRejected(true);
+    } catch {} finally {
+      setLoading(false);
+    }
+  };
+
+  if (rejected) {
+    return (
+      <span className="text-xs font-medium text-red-600 animate-checkmark">Rejected</span>
+    );
+  }
+
+  return (
+    <button onClick={handleReject} disabled={loading} className="px-3 py-1.5 border border-border text-xs font-medium hover:bg-surface transition-colors disabled:opacity-50 inline-flex items-center gap-1">
+      {loading && <Loader2 className="w-3 h-3 animate-spin" />}
+      {loading ? "Rejecting..." : "Reject"}
     </button>
   );
 }
