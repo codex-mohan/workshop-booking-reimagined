@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { authApi } from "../api/endpoints";
-import { UserPlus, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function Register() {
   const { register } = useAuth();
@@ -45,16 +45,16 @@ export default function Register() {
 
   return (
     <div className="max-w-lg mx-auto mt-6 sm:mt-8 animate-scale-in">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 sm:p-8">
+      <div className="bg-white border border-border shadow-sm p-7 sm:p-8">
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <UserPlus className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 bg-black flex items-center justify-center">
+            <UserPlus className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-800">Create Account</h1>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+          <div className="border border-red-200 text-red-700 px-4 py-3 mb-4 text-sm">
             {error}
           </div>
         )}
@@ -80,7 +80,7 @@ export default function Register() {
                   value={form.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow text-sm pr-10"
+                  className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm pr-10"
                   placeholder="Password"
                 />
                 <button
@@ -110,13 +110,14 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium disabled:opacity-50"
+            className="w-full py-2.5 bg-black text-white hover:bg-gray-800 transition-colors font-medium disabled:opacity-50 inline-flex items-center justify-center gap-2 text-sm"
           >
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account...</> : <>
+            <UserPlus className="w-4 h-4" /> Create Account</>}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-sm text-gray-500">
+        <p className="mt-5 text-center text-sm text-gray-500 font-light">
           Already have an account?{" "}
           <Link to="/login" className="text-accent hover:underline font-medium">Sign In</Link>
         </p>
@@ -137,7 +138,7 @@ function Field({ label, name, value, onChange, required, type = "text", placehol
         onChange={onChange}
         required={required}
         placeholder={placeholder}
-        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow text-sm"
+        className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm"
       />
     </div>
   );
@@ -152,7 +153,7 @@ function SelectField({ label, name, value, onChange, options }) {
         name={name}
         value={value}
         onChange={onChange}
-        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow text-sm bg-white"
+        className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm bg-white"
       >
         {options.map(([val, label]) => (
           <option key={val} value={val}>{label}</option>
