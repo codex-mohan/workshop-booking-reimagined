@@ -360,25 +360,19 @@ class PublicStatisticsView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        today = timezone.now()
-        upto = today + dt.timedelta(days=15)
-        workshops = Workshop.objects.filter(
-            date__range=(today, upto), status=1
-        ).order_by("date")
-
         from_date = request.query_params.get("from_date")
         to_date = request.query_params.get("to_date")
         state = request.query_params.get("state")
         workshop_type = request.query_params.get("workshop_type")
 
+        workshops = Workshop.objects.filter(status=1).order_by("-date")
+
         if from_date and to_date:
-            workshops = Workshop.objects.filter(
-                date__range=(from_date, to_date), status=1
-            ).order_by("date")
-            if state:
-                workshops = workshops.filter(coordinator__profile__state=state)
-            if workshop_type:
-                workshops = workshops.filter(workshop_type_id=workshop_type)
+            workshops = workshops.filter(date__range=(from_date, to_date))
+        if state:
+            workshops = workshops.filter(coordinator__profile__state=state)
+        if workshop_type:
+            workshops = workshops.filter(workshop_type_id=workshop_type)
 
         ws_states, ws_count = Workshop.objects.get_workshops_by_state(workshops)
         ws_type, ws_type_count = Workshop.objects.get_workshops_by_type(workshops)
