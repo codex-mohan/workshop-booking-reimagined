@@ -24,4 +24,9 @@ urlpatterns = [
     path("profile/<int:user_id>/", views.UserProfileView.as_view()),
     path("statistics/public/", views.PublicStatisticsView.as_view()),
     path("filter-options/", views.FilterOptionsView.as_view()),
+    path("admin/users/", views.AdminUserListView.as_view()),
+    path("admin/users/<int:user_id>/promote/", views.AdminUserPromoteView.as_view()),
+    path("admin/users/<int:user_id>/demote/", views.AdminUserDemoteView.as_view()),
+    path("admin/workshops/create/", views.AdminWorkshopCreateView.as_view()),
+    path("admin/workshops/<int:pk>/delete/", views.AdminWorkshopDeleteView.as_view()),
 ]

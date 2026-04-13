@@ -1,7 +1,7 @@
 import datetime as dt
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.db.models import Q
 from rest_framework import generics, status, permissions
@@ -50,6 +50,7 @@ class CurrentUserView(APIView):
         is_instructor = request.user.groups.filter(name="instructor").exists()
         data = serializer.data
         data["is_instructor"] = is_instructor
+        data["is_admin"] = request.user.is_staff
         return Response(data)
 
 
@@ -470,3 +471,89 @@ class UserProfileView(APIView):
         except User.DoesNotExist:
             return Response({"detail": "Not found"}, status=404)
         return Response(UserSerializer(user).data)
+
+
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_staff
+
+
+class AdminUserListView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request):
+        users = User.objects.select_related("profile").all().order_by("-date_joined")
+        data = []
+        for u in users:
+            is_instructor = u.groups.filter(name="instructor").exists()
+            data.append(
+                {
+                    "id": u.id,
+                    "username": u.username,
+                    "email": u.email,
+                    "first_name": u.first_name,
+                    "last_name": u.last_name,
+                    "is_active": u.is_active,
+                    "is_staff": u.is_staff,
+                    "is_instructor": is_instructor,
+                    "position": getattr(u.profile, "position", ""),
+                    "institute": getattr(u.profile, "institute", ""),
+                    "date_joined": u.date_joined,
+                }
+            )
+        return Response(data)
+
+
+class AdminUserPromoteView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Not found"}, status=404)
+        group = Group.objects.get_or_create(name="instructor")[0]
+        user.groups.add(group)
+        if hasattr(user, "profile"):
+            user.profile.position = "instructor"
+            user.profile.save()
+        return Response({"detail": f"{user.username} promoted to instructor"})
+
+
+class AdminUserDemoteView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Not found"}, status=404)
+        group = Group.objects.get_or_create(name="instructor")[0]
+        user.groups.remove(group)
+        if hasattr(user, "profile"):
+            user.profile.position = "coordinator"
+            user.profile.save()
+        return Response({"detail": f"{user.username} demoted to coordinator"})
+
+
+class AdminWorkshopCreateView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def post(self, request):
+        serializer = WorkshopListSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AdminWorkshopDeleteView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def delete(self, request, pk):
+        try:
+            workshop = Workshop.objects.get(pk=pk)
+        except Workshop.DoesNotExist:
+            return Response({"detail": "Not found"}, status=404)
+        workshop.delete()
+        return Response({"detail": "Workshop deleted"})
