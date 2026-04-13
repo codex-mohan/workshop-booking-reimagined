@@ -103,8 +103,8 @@ The hardest part was bridging the gap between Django's server-rendered template 
 ### Propose Workshop
 | Before | After |
 |--------|-------|
-| ![Propose Old PC](screenshots/old-propose-pc.png) | _(pending: reimagined)_ |
-| ![Propose Old Mobile](screenshots/old-propose-mobile.png) | _(pending: reimagined)_ |
+| ![Propose Old PC](screenshots/old-propose-pc.png) | _(pending: screenshot)_ |
+| ![Propose Old Mobile](screenshots/old-propose-mobile.png) | _(pending)_ |
 
 ---
 
