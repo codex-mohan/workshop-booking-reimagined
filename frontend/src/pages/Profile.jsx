@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { profileApi } from "../api/endpoints";
-import { User, Save, Loader2, MapPin, Phone, Building } from "lucide-react";
+import { profileApi, authApi } from "../api/endpoints";
+import { User, Save, Loader2, MapPin, Phone, Building, Lock } from "lucide-react";
 
 export default function Profile() {
   const { user, refetch } = useAuth();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    old_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -49,6 +58,33 @@ export default function Profile() {
     } catch {
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (passwordForm.new_password !== passwordForm.confirm_password) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+    if (passwordForm.new_password.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+      return;
+    }
+    setChangingPassword(true);
+    setPasswordError("");
+    try {
+      await authApi.changePassword(passwordForm);
+      setPasswordSuccess(true);
+      setPasswordForm({ old_password: "", new_password: "", confirm_password: "" });
+      setTimeout(() => {
+        setPasswordSuccess(false);
+        setShowPasswordForm(false);
+      }, 3000);
+    } catch (err) {
+      setPasswordError(err.response?.data?.detail || "Failed to change password");
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -169,6 +205,89 @@ export default function Profile() {
           </form>
         )}
         </div>
+      </div>
+
+      <div className="bg-white border border-border shadow-sm mt-4 overflow-hidden">
+        <div className="px-6 py-4 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Lock className="w-5 h-5 text-gray-500" />
+              <h2 className="font-semibold text-sm text-gray-700">Change Password</h2>
+            </div>
+            {!showPasswordForm && (
+              <button
+                onClick={() => setShowPasswordForm(true)}
+                className="text-xs font-medium text-blue-600 hover:text-blue-700"
+              >
+                Change
+              </button>
+            )}
+          </div>
+        </div>
+        {showPasswordForm && (
+          <div className="p-6 sm:p-7 animate-slide-down">
+            {passwordSuccess && (
+              <div className="border border-green-200 text-green-700 px-4 py-3 mb-4 text-sm">
+                Password changed successfully!
+              </div>
+            )}
+            {passwordError && (
+              <div className="border border-red-200 text-red-700 px-4 py-3 mb-4 text-sm">
+                {passwordError}
+              </div>
+            )}
+            <form onSubmit={handlePasswordChange} className="space-y-4 max-w-sm">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label>
+                <input
+                  type="password"
+                  value={passwordForm.old_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, old_password: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">New Password</label>
+                <input
+                  type="password"
+                  value={passwordForm.new_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={passwordForm.confirm_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirm_password: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={changingPassword}
+                  className="px-5 py-2.5 bg-black text-white hover:bg-gray-800 transition-colors font-medium text-sm disabled:opacity-50 flex items-center gap-2"
+                >
+                  {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+                  Update Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordForm(false);
+                    setPasswordError("");
+                    setPasswordForm({ old_password: "", new_password: "", confirm_password: "" });
+                  }}
+                  className="px-5 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

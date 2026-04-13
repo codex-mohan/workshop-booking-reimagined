@@ -621,8 +621,29 @@ class AdminWorkshopDeleteView(APIView):
         return Response({"detail": "Workshop deleted"})
 
 
-class InstructorStatsView(APIView):
+class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
+
+        if not old_password or not new_password or not confirm_password:
+            return Response({"detail": "All fields are required"}, status=400)
+
+        if new_password != confirm_password:
+            return Response({"detail": "New passwords do not match"}, status=400)
+
+        user = request.user
+        if not user.check_password(old_password):
+            return Response({"detail": "Current password is incorrect"}, status=400)
+
+        user.set_password(new_password)
+        user.save()
+        login(request, user)
+        get_token(request)
+        return Response({"detail": "Password changed successfully"})
 
     def get(self, request):
         if (

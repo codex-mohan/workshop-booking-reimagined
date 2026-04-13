@@ -7,6 +7,7 @@ export const authApi = {
   logout: () => api.post("/auth/logout/"),
   getMe: () => api.get("/auth/me/"),
   activate: (key) => api.get(`/auth/activate/${key}/`),
+  changePassword: (data) => api.post("/auth/change-password/", data),
 };
 
 export const workshopApi = {
