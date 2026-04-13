@@ -66,10 +66,10 @@ export default function ProposeWorkshop() {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse" />
-          <div className="h-7 w-48 bg-gray-200 rounded-md animate-pulse" />
+          <div className="w-10 h-10 shimmer" />
+          <div className="h-7 w-48 shimmer" />
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-7 space-y-5">
+        <div className="bg-white border border-border shadow-sm p-7 space-y-5">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-32 w-full" />
@@ -83,15 +83,15 @@ export default function ProposeWorkshop() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="flex items-center gap-2 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-          <PlusCircle className="w-5 h-5 text-accent" />
+        <div className="w-10 h-10 bg-black flex items-center justify-center">
+          <PlusCircle className="w-5 h-5 text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-800">Propose a Workshop</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-800">Propose a Workshop</h1>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7">
+      <div className="bg-white border border-border shadow-sm p-7">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm flex items-start gap-2">
+          <div className="border border-red-200 text-red-700 px-4 py-3 mb-4 text-sm flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             {error}
           </div>
@@ -101,7 +101,7 @@ export default function ProposeWorkshop() {
           <div className="text-center py-12">
             <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
             <p className="text-gray-500">No workshop types available yet.</p>
-            <p className="text-gray-400 text-sm mt-1">Please check back later or contact an admin.</p>
+            <p className="text-gray-400 text-sm mt-1 font-light">Please check back later or contact an admin.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -114,7 +114,7 @@ export default function ProposeWorkshop() {
                 value={form.workshop_type}
                 onChange={handleTypeChange}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm bg-white"
+                className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm bg-white"
               >
                 <option value="">Select a workshop type</option>
                 {workshopTypes.map((wt) => (
@@ -135,16 +135,16 @@ export default function ProposeWorkshop() {
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 required
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm"
+                className="w-full px-4 py-2.5 border border-gray-300 focus:border-black outline-none transition-colors text-sm"
               />
             </div>
 
             {tncContent && (
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="bg-surface p-4 border border-border">
                 <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-2">
                   <FileText className="w-4 h-4" /> Terms & Conditions
                 </div>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap max-h-40 overflow-y-auto">
+                <p className="text-sm text-gray-600 font-light whitespace-pre-wrap max-h-40 overflow-y-auto">
                   {tncContent}
                 </p>
               </div>
@@ -155,9 +155,9 @@ export default function ProposeWorkshop() {
                 type="checkbox"
                 checked={form.tnc_accepted}
                 onChange={(e) => setForm({ ...form, tnc_accepted: e.target.checked })}
-                className="mt-1 w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
+                className="mt-1 w-4 h-4 text-accent border-gray-300 focus:border-black"
               />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 font-light">
                 I accept the terms and conditions for this workshop
               </span>
             </label>
@@ -165,9 +165,9 @@ export default function ProposeWorkshop() {
             <button
               type="submit"
               disabled={submitting || !form.tnc_accepted}
-              className="w-full py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium disabled:opacity-50"
+              className="w-full py-2.5 bg-black text-white hover:bg-gray-800 transition-colors font-medium text-sm disabled:opacity-50 inline-flex items-center justify-center gap-2"
             >
-              {submitting ? "Submitting..." : "Propose Workshop"}
+              {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : "Propose Workshop"}
             </button>
           </form>
         )}
