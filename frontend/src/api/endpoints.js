@@ -43,3 +43,11 @@ export const statsApi = {
 export const filterApi = {
   getOptions: () => api.get("/filter-options/"),
 };
+
+export const adminApi = {
+  getUsers: () => api.get("/admin/users/"),
+  promoteUser: (userId) => api.post(`/admin/users/${userId}/promote/`),
+  demoteUser: (userId) => api.post(`/admin/users/${userId}/demote/`),
+  createWorkshop: (data) => api.post("/admin/workshops/create/", data),
+  deleteWorkshop: (id) => api.delete(`/admin/workshops/${id}/delete/`),
+};
