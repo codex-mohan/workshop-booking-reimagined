@@ -63,7 +63,7 @@ The hardest part was bridging the gap between Django's server-rendered template 
 | Before | After |
 |--------|-------|
 | _(pending: old version)_ | ![Home Desktop](screenshots/home-pc.png) |
-| _(pending: old version)_ | ![Home Mobile](screenshots/home-mobile.png) |
+| _(pending: old version)_ | _(pending: old version)_ |
 
 ### Login
 | Before | After |
@@ -80,25 +80,25 @@ The hardest part was bridging the gap between Django's server-rendered template 
 ### Dashboard
 | Before | After |
 |--------|-------|
-| _(pending: old version)_ | ![Dashboard Desktop](screenshots/dashboard-pc.png) |
+| ![Dashboard Old](screenshots/old_workshop_status.png) | ![Dashboard Desktop](screenshots/dashboard-pc.png) |
 | _(pending: old version)_ | ![Dashboard Mobile](screenshots/dashboard-mobile.png) |
 
 ### Statistics
 | Before | After |
 |--------|-------|
-| _(pending: old version)_ | ![Statistics Desktop](screenshots/statistics-pc.png) |
+| ![Statistics Old](screenshots/old_workshop_statistics_.png) | ![Statistics Desktop](screenshots/statistics-pc.png) |
 | _(pending: old version)_ | ![Statistics Mobile](screenshots/statistics-mobile.png) |
 
 ### Workshop Types
 | Before | After |
 |--------|-------|
-| _(pending: old version)_ | ![Workshop Types Desktop](screenshots/workshop-types-pc.png) |
+| ![Workshop Types Old](screenshots/old_workshop_types_.png) | ![Workshop Types Desktop](screenshots/workshop-types-pc.png) |
 | _(pending: old version)_ | ![Workshop Types Mobile](screenshots/workshop-types-mobile.png) |
 
 ### Profile
 | Before | After |
 |--------|-------|
-| _(pending: old version)_ | ![Profile Desktop](screenshots/profile-pc.png) |
+| ![Profile Old](screenshots/old_workshop_view_profile_.png) | ![Profile Desktop](screenshots/profile-pc.png) |
 | _(pending: old version)_ | ![Profile Mobile](screenshots/profile-mobile.png) |
 
 ---

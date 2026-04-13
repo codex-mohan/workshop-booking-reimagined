@@ -621,6 +621,59 @@ class AdminWorkshopDeleteView(APIView):
         return Response({"detail": "Workshop deleted"})
 
 
+class InstructorStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if (
+            not request.user.groups.filter(name="instructor").exists()
+            and not request.user.is_staff
+        ):
+            return Response({"detail": "Not authorized"}, status=403)
+
+        instructors = User.objects.filter(groups__name="instructor").select_related(
+            "profile"
+        )
+        data = []
+        for inst in instructors:
+            count = Workshop.objects.filter(instructor=inst, status=1).count()
+            data.append(
+                {
+                    "id": inst.id,
+                    "name": inst.get_full_name() or inst.username,
+                    "institute": getattr(inst.profile, "institute", ""),
+                    "workshop_count": count,
+                }
+            )
+
+        coordinators = User.objects.filter(
+            profile__position="coordinator"
+        ).select_related("profile")
+        coord_data = []
+        for coord in coordinators:
+            count = Workshop.objects.filter(coordinator=coord, status=1).count()
+            if count > 0:
+                coord_data.append(
+                    {
+                        "id": coord.id,
+                        "name": coord.get_full_name() or coord.username,
+                        "institute": getattr(coord.profile, "institute", ""),
+                        "workshop_count": count,
+                    }
+                )
+
+        return Response(
+            {
+                "instructors": sorted(
+                    data, key=lambda x: x["workshop_count"], reverse=True
+                ),
+                "coordinators": sorted(
+                    coord_data, key=lambda x: x["workshop_count"], reverse=True
+                ),
+            }
+        )
+
+
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
