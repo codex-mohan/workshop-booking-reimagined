@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   Menu, X, User, LogOut, LayoutDashboard, BarChart3,
-  BookOpen, PlusCircle, ChevronDown,
+  BookOpen, PlusCircle, ChevronDown, Shield,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -59,6 +59,9 @@ export default function Navbar() {
                   <NavLink to="/propose"><PlusCircle className="w-3.5 h-3.5" />Propose</NavLink>
                 )}
                 <NavLink to="/workshop-types">Types</NavLink>
+                {user.is_admin && (
+                  <NavLink to="/admin"><Shield className="w-3.5 h-3.5" />Admin</NavLink>
+                )}
 
                 <div className="relative ml-2" ref={dropdownRef}>
                   <button
@@ -117,6 +120,9 @@ export default function Navbar() {
                   <MobileNavLink to="/propose" onClick={() => setMenuOpen(false)}>Propose Workshop</MobileNavLink>
                 )}
                 <MobileNavLink to="/workshop-types" onClick={() => setMenuOpen(false)}>Workshop Types</MobileNavLink>
+                {user.is_admin && (
+                  <MobileNavLink to="/admin" onClick={() => setMenuOpen(false)}>Admin Panel</MobileNavLink>
+                )}
                 <MobileNavLink to="/profile" onClick={() => setMenuOpen(false)}>Profile</MobileNavLink>
                 <button
                   onClick={handleLogout}
