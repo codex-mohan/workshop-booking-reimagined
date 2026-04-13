@@ -63,43 +63,48 @@ The hardest part was bridging the gap between Django's server-rendered template 
 | Before | After |
 |--------|-------|
 | _(pending: old version)_ | ![Home Desktop](screenshots/home-pc.png) |
-| _(pending: old version)_ | _(pending: old version)_ |
 
 ### Login
 | Before | After |
 |--------|-------|
-| _(pending: old version)_ | ![Login Desktop](screenshots/login-pc.png) |
+| ![Login Old PC](screenshots/old-login-pc.png) | ![Login Desktop](screenshots/login-pc.png) |
 | _(pending: old version)_ | ![Login Mobile](screenshots/login-mobile.png) |
 
 ### Registration
 | Before | After |
 |--------|-------|
-| _(pending: old version)_ | ![Register Desktop](screenshots/register-pc.png) |
+| ![Register Old PC](screenshots/old-register-pc.png) | ![Register Desktop](screenshots/register-pc.png) |
 | _(pending: old version)_ | ![Register Mobile](screenshots/register-mobile.png) |
 
 ### Dashboard
 | Before | After |
 |--------|-------|
-| ![Dashboard Old](screenshots/old_workshop_status.png) | ![Dashboard Desktop](screenshots/dashboard-pc.png) |
+| ![Dashboard Old PC](screenshots/old-dashboard-pc.png) | ![Dashboard Desktop](screenshots/dashboard-pc.png) |
 | _(pending: old version)_ | ![Dashboard Mobile](screenshots/dashboard-mobile.png) |
 
 ### Statistics
 | Before | After |
 |--------|-------|
-| ![Statistics Old](screenshots/old_workshop_statistics_.png) | ![Statistics Desktop](screenshots/statistics-pc.png) |
+| ![Statistics Old PC](screenshots/old-statistics-pc.png) | ![Statistics Desktop](screenshots/statistics-pc.png) |
 | _(pending: old version)_ | ![Statistics Mobile](screenshots/statistics-mobile.png) |
 
 ### Workshop Types
 | Before | After |
 |--------|-------|
-| ![Workshop Types Old](screenshots/old_workshop_types_.png) | ![Workshop Types Desktop](screenshots/workshop-types-pc.png) |
+| ![Workshop Types Old PC](screenshots/old-workshop-types-pc.png) | ![Workshop Types Desktop](screenshots/workshop-types-pc.png) |
 | _(pending: old version)_ | ![Workshop Types Mobile](screenshots/workshop-types-mobile.png) |
 
 ### Profile
 | Before | After |
 |--------|-------|
-| ![Profile Old](screenshots/old_workshop_view_profile_.png) | ![Profile Desktop](screenshots/profile-pc.png) |
+| ![Profile Old PC](screenshots/old-profile-pc.png) | ![Profile Desktop](screenshots/profile-pc.png) |
 | _(pending: old version)_ | ![Profile Mobile](screenshots/profile-mobile.png) |
+
+### Propose Workshop
+| Before | After |
+|--------|-------|
+| ![Propose Old PC](screenshots/old-propose-pc.png) | _(pending: reimagined)_ |
+| _(pending: old version)_ | _(pending: reimagined)_ |
 
 ---
 
