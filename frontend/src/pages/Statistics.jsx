@@ -1,18 +1,22 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { statsApi, filterApi } from "../api/endpoints";
 import { useMinLoading } from "../hooks/useMinLoading";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell,
 } from "recharts";
-import { BarChart3, Filter, Calendar, MapPin } from "lucide-react";
+import { BarChart3, Filter, Calendar, MapPin, Users } from "lucide-react";
 import { SkeletonChart, SkeletonRow } from "../components/Skeleton";
 
 export default function Statistics() {
+  const { user } = useAuth();
   const [showFilters, setShowFilters] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [instructorStats, setInstructorStats] = useState(null);
 
   const { loading, data, error, setData } = useMinLoading(
     async () => {
@@ -20,7 +24,14 @@ export default function Statistics() {
         statsApi.getPublicStats(),
         filterApi.getOptions(),
       ]);
-      return { stats: statsRes.data, filters: filterRes.data };
+      let instStats = null;
+      if (user?.is_instructor || user?.is_admin) {
+        try {
+          const instRes = await statsApi.getInstructorStats();
+          instStats = instRes.data;
+        } catch {}
+      }
+      return { stats: statsRes.data, filters: filterRes.data, instructorStats: instStats };
     },
     [],
     800
@@ -33,7 +44,7 @@ export default function Statistics() {
     if (selectedState) params.state = selectedState;
     if (selectedType) params.workshop_type = selectedType;
     const res = await statsApi.getPublicStats(params);
-    setData({ stats: res.data, filters: data?.filters });
+    setData({ stats: res.data, filters: data?.filters, instructorStats: data?.instructorStats });
   };
 
   if (loading) {
@@ -48,9 +59,7 @@ export default function Statistics() {
           <SkeletonChart />
         </div>
         <div className="space-y-2">
-          <SkeletonRow />
-          <SkeletonRow />
-          <SkeletonRow />
+          <SkeletonRow /><SkeletonRow /><SkeletonRow />
         </div>
       </div>
     );
@@ -58,6 +67,7 @@ export default function Statistics() {
 
   const stats = data?.stats;
   const filters = data?.filters;
+  const instStats = data?.instructorStats;
 
   const stateChartData = (stats?.state_chart?.labels || []).map((label, i) => ({
     state: label,
@@ -69,6 +79,14 @@ export default function Statistics() {
     count: stats?.type_chart?.data?.[i] || 0,
   }));
 
+  const monthlyChartData = (stats?.monthly_chart?.labels || []).map((label, i) => ({
+    month: label,
+    count: stats?.monthly_chart?.data?.[i] || 0,
+  }));
+
+  const pieData = typeChartData.filter((d) => d.count > 0);
+  const PIE_COLORS = ["#0070f3", "#7928ca", "#f5a623", "#50e3c2", "#e00", "#000"];
+
   return (
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -76,7 +94,7 @@ export default function Statistics() {
           <div className="w-10 h-10 bg-black flex items-center justify-center">
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-800">Workshop Statistics</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Workshop Statistics</h1>
         </div>
         <button
           onClick={() => setShowFilters(!showFilters)}
@@ -92,71 +110,84 @@ export default function Statistics() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">From Date</label>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm"
-              />
+              <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">To Date</label>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm"
-              />
+              <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
-              <select
-                value={selectedState}
-                onChange={(e) => setSelectedState(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm bg-white"
-              >
+              <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm bg-white">
                 <option value="">All States</option>
-                {filters?.states?.map((s) => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
-                ))}
+                {filters?.states?.map((s) => (<option key={s.value} value={s.value}>{s.label}</option>))}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Workshop Type</label>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm bg-white"
-              >
+              <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="w-full px-3 py-2 border border-gray-300 focus:border-black outline-none text-sm bg-white">
                 <option value="">All Types</option>
-                {filters?.workshop_types?.map((wt) => (
-                  <option key={wt.id} value={wt.id}>{wt.name}</option>
-                ))}
+                {filters?.workshop_types?.map((wt) => (<option key={wt.id} value={wt.id}>{wt.name}</option>))}
               </select>
             </div>
           </div>
-          <button
-            onClick={applyFilters}
-            className="mt-4 px-5 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium"
-          >
+          <button onClick={applyFilters} className="mt-4 px-5 py-2 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium">
             Apply Filters
           </button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <ChartCard title="Workshops by State" data={stateChartData} dataKey="count" xKey="state" color="#0070f3" />
         <ChartCard title="Workshops by Type" data={typeChartData} dataKey="count" xKey="type" color="#7928ca" />
       </div>
 
-      <h2 className="text-lg font-semibold tracking-tight text-gray-700 mb-3">
-        Upcoming Workshops ({stats?.total || 0})
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <ChartCard title={`Monthly Count (${new Date().getFullYear()})`} data={monthlyChartData} dataKey="count" xKey="month" color="#50e3c2" />
+        <div className="bg-white border border-border shadow-sm p-5">
+          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Workshop Type Distribution</h3>
+          {!pieData || pieData.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-8 font-light">No data available</p>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie data={pieData} cx="50%" cy="50%" outerRadius={80} dataKey="count" nameKey="type" strokeWidth={1} stroke="#fff">
+                    {pieData.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<PieTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-wrap justify-center gap-3 mt-2">
+                {pieData.map((d, i) => (
+                  <span key={d.type} className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <span className="w-2 h-2" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                    {d.type}: {d.count}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {(user?.is_instructor || user?.is_admin) && instStats && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <StatsTable title="Instructor Statistics" data={instStats.instructors} />
+          <StatsTable title="Coordinator Statistics" data={instStats.coordinators} />
+        </div>
+      )}
+
+      <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+        Workshops ({stats?.total || 0})
       </h2>
 
       {stats?.workshops?.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-border shadow-sm">
+        <div className="text-center py-12 border border-border shadow-sm">
           <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-          <p className="text-gray-500 font-light">No upcoming workshops found</p>
+          <p className="text-gray-500 font-light">No workshops found</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -167,7 +198,7 @@ export default function Statistics() {
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <div className="min-w-0">
-                <h3 className="font-medium text-gray-800 text-sm truncate">{ws.workshop_type_name}</h3>
+                <h3 className="font-medium text-sm truncate">{ws.workshop_type_name}</h3>
                 <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{ws.date}</span>
                   {ws.coordinator_institute && (
@@ -212,6 +243,37 @@ function CustomTooltip({ active, payload, label, color }) {
     <div className="bg-white border border-border shadow-sm px-3 py-2 text-sm">
       <p className="font-medium">{label}</p>
       <p style={{ color }}>{payload[0].value} workshops</p>
+    </div>
+  );
+}
+
+function PieTooltip({ active, payload }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white border border-border shadow-sm px-3 py-2 text-sm">
+      <p className="font-medium">{payload[0].name}</p>
+      <p className="text-gray-600">{payload[0].value} workshops</p>
+    </div>
+  );
+}
+
+function StatsTable({ title, data }) {
+  if (!data || data.length === 0) return null;
+  return (
+    <div className="bg-white border border-border shadow-sm">
+      <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+        <Users className="w-4 h-4 text-gray-400" />
+        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">{title}</h3>
+      </div>
+      {data.map((d, i) => (
+        <div key={d.id} className="flex items-center justify-between px-4 py-2.5 border-b border-border last:border-b-0 card-hover">
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{d.name}</p>
+            <p className="text-xs text-gray-400 truncate">{d.institute}</p>
+          </div>
+          <span className="text-sm font-semibold shrink-0 ml-3">{d.workshop_count}</span>
+        </div>
+      ))}
     </div>
   );
 }

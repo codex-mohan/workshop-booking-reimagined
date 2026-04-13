@@ -38,6 +38,7 @@ export const profileApi = {
 
 export const statsApi = {
   getPublicStats: (params) => api.get("/statistics/public/", { params }),
+  getInstructorStats: () => api.get("/statistics/instructor/"),
 };
 
 export const filterApi = {
