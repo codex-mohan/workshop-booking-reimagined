@@ -68,43 +68,43 @@ The hardest part was bridging the gap between Django's server-rendered template 
 | Before | After |
 |--------|-------|
 | ![Login Old PC](screenshots/old-login-pc.png) | ![Login Desktop](screenshots/login-pc.png) |
-| _(pending: old version)_ | ![Login Mobile](screenshots/login-mobile.png) |
+| ![Login Old Mobile](screenshots/old-login-mobile.png) | ![Login Mobile](screenshots/login-mobile.png) |
 
 ### Registration
 | Before | After |
 |--------|-------|
 | ![Register Old PC](screenshots/old-register-pc.png) | ![Register Desktop](screenshots/register-pc.png) |
-| _(pending: old version)_ | ![Register Mobile](screenshots/register-mobile.png) |
+| ![Register Old Mobile](screenshots/old-register-mobile.png) | ![Register Mobile](screenshots/register-mobile.png) |
 
 ### Dashboard
 | Before | After |
 |--------|-------|
 | ![Dashboard Old PC](screenshots/old-dashboard-pc.png) | ![Dashboard Desktop](screenshots/dashboard-pc.png) |
-| _(pending: old version)_ | ![Dashboard Mobile](screenshots/dashboard-mobile.png) |
+| ![Dashboard Old Mobile](screenshots/old-dashboard-mobile.png) | ![Dashboard Mobile](screenshots/dashboard-mobile.png) |
 
 ### Statistics
 | Before | After |
 |--------|-------|
 | ![Statistics Old PC](screenshots/old-statistics-pc.png) | ![Statistics Desktop](screenshots/statistics-pc.png) |
-| _(pending: old version)_ | ![Statistics Mobile](screenshots/statistics-mobile.png) |
+| ![Statistics Old Mobile](screenshots/old-statistics-mobile.png) | ![Statistics Mobile](screenshots/statistics-mobile.png) |
 
 ### Workshop Types
 | Before | After |
 |--------|-------|
 | ![Workshop Types Old PC](screenshots/old-workshop-types-pc.png) | ![Workshop Types Desktop](screenshots/workshop-types-pc.png) |
-| _(pending: old version)_ | ![Workshop Types Mobile](screenshots/workshop-types-mobile.png) |
+| ![Workshop Types Old Mobile](screenshots/old-workshop-types-mobile.png) | ![Workshop Types Mobile](screenshots/workshop-types-mobile.png) |
 
 ### Profile
 | Before | After |
 |--------|-------|
 | ![Profile Old PC](screenshots/old-profile-pc.png) | ![Profile Desktop](screenshots/profile-pc.png) |
-| _(pending: old version)_ | ![Profile Mobile](screenshots/profile-mobile.png) |
+| ![Profile Old Mobile](screenshots/old-profile-mobile.png) | ![Profile Mobile](screenshots/profile-mobile.png) |
 
 ### Propose Workshop
 | Before | After |
 |--------|-------|
 | ![Propose Old PC](screenshots/old-propose-pc.png) | _(pending: reimagined)_ |
-| _(pending: old version)_ | _(pending: reimagined)_ |
+| ![Propose Old Mobile](screenshots/old-propose-mobile.png) | _(pending: reimagined)_ |
 
 ---
 
