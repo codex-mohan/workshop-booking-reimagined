@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { workshopApi } from "../api/endpoints";
 import {
   Calendar, MapPin, User, MessageSquare, Send,
-  ArrowLeft, Loader2, CheckCircle, Clock,
+  ChevronRight, Loader2, CheckCircle, Clock,
 } from "lucide-react";
 import { SkeletonText, Skeleton } from "../components/Skeleton";
 
@@ -54,12 +54,12 @@ export default function WorkshopDetails() {
   if (loading) {
     return (
       <div>
-        <div className="h-4 w-20 bg-gray-200 rounded-md animate-pulse mb-4" />
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-          <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
+        <div className="h-4 w-20 shimmer mb-4" />
+        <div className="bg-white border border-border shadow-sm overflow-hidden">
+          <div className="bg-surface px-6 py-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="h-6 w-48 bg-gray-200 rounded-md animate-pulse" />
-              <div className="h-5 w-16 bg-gray-200 rounded-full animate-pulse" />
+              <div className="h-6 w-48 shimmer" />
+              <div className="h-5 w-16 shimmer" />
             </div>
           </div>
           <div className="p-6">
@@ -69,7 +69,7 @@ export default function WorkshopDetails() {
               <Skeleton className="h-4 w-36" />
               <Skeleton className="h-4 w-44" />
             </div>
-            <div className="border-t border-gray-100 pt-6">
+            <div className="border-t border-border pt-6">
               <SkeletonText lines={4} />
             </div>
           </div>
@@ -83,27 +83,26 @@ export default function WorkshopDetails() {
 
   const statusStyles = {
     0: "bg-amber-100 text-amber-700",
-    1: "bg-green-100 text-green-700",
+    1: "bg-blue-100 text-blue-700",
     2: "bg-red-100 text-red-700",
   };
   const statusLabels = { 0: "Pending", 1: "Accepted", 2: "Deleted" };
 
   return (
     <div>
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-4"
-      >
-        <ArrowLeft className="w-4 h-4" /> Back
-      </button>
+      <nav className="flex items-center gap-1.5 text-sm text-gray-500 mb-4 flex-wrap">
+        <Link to="/dashboard" className="hover:text-accent transition-colors">Dashboard</Link>
+        <ChevronRight className="w-3.5 h-3.5" />
+        <span className="text-gray-800 font-medium truncate">{ws?.workshop_type_name || "Workshop"}</span>
+      </nav>
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="bg-primary/5 px-6 py-4 border-b border-gray-100">
+      <div className="bg-white border border-border shadow-sm overflow-hidden animate-fade-in">
+        <div className="bg-black px-5 sm:px-6 py-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-bold text-gray-800">
+            <h1 className="text-xl font-semibold tracking-tight text-white">
               {ws?.workshop_type_name}
             </h1>
-            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[ws?.status]}`}>
+            <span className={`inline-flex px-1.5 py-0.5 text-xs font-medium ${statusStyles[ws?.status]}`}>
               {statusLabels[ws?.status]}
             </span>
           </div>
@@ -119,8 +118,8 @@ export default function WorkshopDetails() {
             )}
           </div>
 
-          <div className="border-t border-gray-100 pt-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="border-t border-border pt-6">
+            <h2 className="text-lg font-semibold tracking-tight text-gray-800 mb-4 flex items-center gap-2">
               <MessageSquare className="w-5 h-5" /> Comments
             </h2>
 
@@ -129,33 +128,33 @@ export default function WorkshopDetails() {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Add a comment..."
-                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm"
+                className="flex-1 px-4 py-2.5 border border-gray-300 focus:border-black outline-none text-sm"
               />
               <button
                 type="submit"
                 disabled={posting || !comment.trim()}
-                className="px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 shrink-0"
+                className="px-4 py-2.5 bg-black text-white hover:bg-gray-800 transition-colors disabled:opacity-50 shrink-0"
               >
                 <Send className="w-4 h-4" />
               </button>
             </form>
 
             {comments.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-6">No comments yet</p>
+              <p className="text-gray-400 text-sm text-center py-6 font-light">No comments yet</p>
             ) : (
               <div className="space-y-3">
                 {comments.map((c) => (
-                  <div key={c.id} className="bg-gray-50 rounded-lg p-4">
+                  <div key={c.id} className="bg-surface p-4 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium text-gray-700">{c.author_name}</span>
                       <span className="text-xs text-gray-400">
                         {new Date(c.created_date).toLocaleDateString()}
                       </span>
                       {!c.public && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Private</span>
+                        <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5">Private</span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600">{c.comment}</p>
+                    <p className="text-sm text-gray-600 font-light">{c.comment}</p>
                   </div>
                 ))}
               </div>
@@ -171,7 +170,7 @@ function InfoRow({ icon, label, value }) {
   return (
     <div className="flex items-center gap-2 text-sm">
       <span className="text-gray-400">{icon}</span>
-      <span className="text-gray-500">{label}:</span>
+      <span className="text-gray-500 font-light">{label}:</span>
       <span className="font-medium text-gray-800">{value || "—"}</span>
     </div>
   );
