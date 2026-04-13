@@ -13,6 +13,7 @@ const ProposeWorkshop = lazy(() => import("./pages/ProposeWorkshop"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Statistics = lazy(() => import("./pages/Statistics"));
 const WorkshopTypes = lazy(() => import("./pages/WorkshopTypes"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 function PageLoader() {
   return (
@@ -42,7 +43,7 @@ class ErrorBoundary extends Component {
           <p className="text-sm text-gray-500 mt-1">Please refresh the page to try again.</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 px-5 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+            className="mt-4 px-5 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors"
           >
             Refresh Page
           </button>
@@ -85,6 +86,10 @@ function AppRoutes() {
         />
         <Route path="/statistics" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><Statistics /></Suspense></ErrorBoundary>} />
         <Route path="/workshop-types" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><WorkshopTypes /></Suspense></ErrorBoundary>} />
+        <Route
+          path="/admin"
+          element={<ProtectedRoute><ErrorBoundary><Suspense fallback={<PageLoader />}><Admin /></Suspense></ErrorBoundary></ProtectedRoute>}
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
