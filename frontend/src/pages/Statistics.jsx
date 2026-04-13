@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { statsApi, filterApi } from "../api/endpoints";
 import { useMinLoading } from "../hooks/useMinLoading";
@@ -11,14 +11,17 @@ import { SkeletonChart, SkeletonRow } from "../components/Skeleton";
 
 function IndiaMap({ data }) {
   const containerRef = useRef(null);
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!data || data.length <= 1) return;
 
+    let resizeObserver;
+
     const drawChart = () => {
       if (!window.google?.visualization?.GeoChart || !containerRef.current) return;
-      const chart = new window.google.visualization.GeoChart(containerRef.current);
+      const el = containerRef.current;
+      el.style.width = el.offsetWidth + "px";
+      const chart = new window.google.visualization.GeoChart(el);
       const tableData = window.google.visualization.arrayToDataTable(data);
       chart.draw(tableData, {
         region: "IN",
@@ -27,34 +30,33 @@ function IndiaMap({ data }) {
         datalessRegionColor: "#f5f5f5",
         defaultColor: "#f5f5f5",
         backgroundColor: "transparent",
-        keepAspectRatio: true,
+        keepAspectRatio: false,
       });
     };
 
-    if (window.google?.visualization?.GeoChart) {
+    const onLoad = () => {
+      resizeObserver = new ResizeObserver(() => drawChart());
+      if (containerRef.current) resizeObserver.observe(containerRef.current);
       drawChart();
-      setReady(true);
-      const onResize = () => drawChart();
-      window.addEventListener("resize", onResize);
-      return () => window.removeEventListener("resize", onResize);
+    };
+
+    if (window.google?.visualization?.GeoChart) {
+      onLoad();
+    } else if (window.google?.charts) {
+      window.google.charts.load("current", { packages: ["geochart"] });
+      window.google.charts.setOnLoadCallback(onLoad);
     }
 
-    if (window.google?.charts) {
-      window.google.charts.load("current", { packages: ["geochart"] });
-      window.google.charts.setOnLoadCallback(() => {
-        setReady(true);
-        drawChart();
-      });
-    }
+    return () => {
+      if (resizeObserver) resizeObserver.disconnect();
+    };
   }, [data]);
 
   if (!data || data.length <= 1) {
     return <p className="text-sm text-gray-400 text-center py-8 font-light">No map data available</p>;
   }
 
-  return (
-    <div ref={containerRef} style={{ width: "100%", height: 350 }} />
-  );
+  return <div ref={containerRef} style={{ width: "100%", height: 350 }} />;
 }
 
 export default function Statistics() {
