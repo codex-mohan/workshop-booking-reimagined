@@ -378,6 +378,15 @@ class PublicStatisticsView(APIView):
         ws_states, ws_count = Workshop.objects.get_workshops_by_state(workshops)
         ws_type, ws_type_count = Workshop.objects.get_workshops_by_type(workshops)
 
+        import calendar
+
+        current_year = timezone.now().year
+        monthly_data = [0] * 12
+        for ws in workshops:
+            if ws.date and ws.date.year == current_year:
+                monthly_data[ws.date.month - 1] += 1
+        monthly_labels = [calendar.month_abbr[i] for i in range(1, 13)]
+
         page = int(request.query_params.get("page", 1))
         per_page = 30
         total = workshops.count()
@@ -393,6 +402,7 @@ class PublicStatisticsView(APIView):
                 "total_pages": (total + per_page - 1) // per_page,
                 "state_chart": {"labels": ws_states, "data": ws_count},
                 "type_chart": {"labels": ws_type, "data": ws_type_count},
+                "monthly_chart": {"labels": monthly_labels, "data": monthly_data},
             }
         )
 
@@ -557,3 +567,56 @@ class AdminWorkshopDeleteView(APIView):
             return Response({"detail": "Not found"}, status=404)
         workshop.delete()
         return Response({"detail": "Workshop deleted"})
+
+
+class InstructorStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if (
+            not request.user.groups.filter(name="instructor").exists()
+            and not request.user.is_staff
+        ):
+            return Response({"detail": "Not authorized"}, status=403)
+
+        instructors = User.objects.filter(groups__name="instructor").select_related(
+            "profile"
+        )
+        data = []
+        for inst in instructors:
+            count = Workshop.objects.filter(instructor=inst, status=1).count()
+            data.append(
+                {
+                    "id": inst.id,
+                    "name": inst.get_full_name() or inst.username,
+                    "institute": getattr(inst.profile, "institute", ""),
+                    "workshop_count": count,
+                }
+            )
+
+        coordinators = User.objects.filter(
+            profile__position="coordinator"
+        ).select_related("profile")
+        coord_data = []
+        for coord in coordinators:
+            count = Workshop.objects.filter(coordinator=coord, status=1).count()
+            if count > 0:
+                coord_data.append(
+                    {
+                        "id": coord.id,
+                        "name": coord.get_full_name() or coord.username,
+                        "institute": getattr(coord.profile, "institute", ""),
+                        "workshop_count": count,
+                    }
+                )
+
+        return Response(
+            {
+                "instructors": sorted(
+                    data, key=lambda x: x["workshop_count"], reverse=True
+                ),
+                "coordinators": sorted(
+                    coord_data, key=lambda x: x["workshop_count"], reverse=True
+                ),
+            }
+        )

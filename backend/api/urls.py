@@ -29,4 +29,5 @@ urlpatterns = [
     path("admin/users/<int:user_id>/demote/", views.AdminUserDemoteView.as_view()),
     path("admin/workshops/create/", views.AdminWorkshopCreateView.as_view()),
     path("admin/workshops/<int:pk>/delete/", views.AdminWorkshopDeleteView.as_view()),
+    path("statistics/instructor/", views.InstructorStatsView.as_view()),
 ]
