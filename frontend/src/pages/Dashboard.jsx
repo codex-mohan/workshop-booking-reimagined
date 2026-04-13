@@ -82,7 +82,7 @@ export default function Dashboard() {
             {user?.full_name || user?.username}
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {user?.is_instructor ? "Instructor" : "Coordinator"} &middot; {user?.profile?.institute}
+            {user?.is_admin ? "Admin" : user?.is_instructor ? "Instructor" : "Coordinator"} &middot; {user?.profile?.institute}
           </p>
         </div>
         {!user?.is_instructor && (
