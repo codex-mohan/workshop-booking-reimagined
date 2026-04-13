@@ -102,7 +102,8 @@ source venv/bin/activate     # macOS/Linux
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser
-python manage.py seed_data    # Optional: load sample data
+python manage.py seed_workshop_types  # Create 6 workshop types
+python manage.py seed_data            # Optional: load sample data (41 workshops, 18 users)
 python manage.py runserver
 ```
 

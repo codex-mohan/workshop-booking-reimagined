@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { statsApi, filterApi } from "../api/endpoints";
 import { useMinLoading } from "../hooks/useMinLoading";
@@ -8,6 +8,54 @@ import {
 } from "recharts";
 import { BarChart3, Filter, Calendar, MapPin, Users } from "lucide-react";
 import { SkeletonChart, SkeletonRow } from "../components/Skeleton";
+
+function IndiaMap({ data }) {
+  const containerRef = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!data || data.length <= 1) return;
+
+    const drawChart = () => {
+      if (!window.google?.visualization?.GeoChart || !containerRef.current) return;
+      const chart = new window.google.visualization.GeoChart(containerRef.current);
+      const tableData = window.google.visualization.arrayToDataTable(data);
+      chart.draw(tableData, {
+        region: "IN",
+        resolution: "provinces",
+        colorAxis: { colors: ["#e8f0fe", "#0070f3"] },
+        datalessRegionColor: "#f5f5f5",
+        defaultColor: "#f5f5f5",
+        backgroundColor: "transparent",
+        keepAspectRatio: true,
+      });
+    };
+
+    if (window.google?.visualization?.GeoChart) {
+      drawChart();
+      setReady(true);
+      const onResize = () => drawChart();
+      window.addEventListener("resize", onResize);
+      return () => window.removeEventListener("resize", onResize);
+    }
+
+    if (window.google?.charts) {
+      window.google.charts.load("current", { packages: ["geochart"] });
+      window.google.charts.setOnLoadCallback(() => {
+        setReady(true);
+        drawChart();
+      });
+    }
+  }, [data]);
+
+  if (!data || data.length <= 1) {
+    return <p className="text-sm text-gray-400 text-center py-8 font-light">No map data available</p>;
+  }
+
+  return (
+    <div ref={containerRef} style={{ width: "100%", height: 350 }} />
+  );
+}
 
 export default function Statistics() {
   const { user } = useAuth();
@@ -140,6 +188,11 @@ export default function Statistics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <ChartCard title="Workshops by State" data={stateChartData} dataKey="count" xKey="state" color="#0070f3" />
         <ChartCard title="Workshops by Type" data={typeChartData} dataKey="count" xKey="type" color="#7928ca" />
+      </div>
+
+      <div className="bg-white border border-border shadow-sm p-5 mb-6">
+        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Workshops Across India</h3>
+        <IndiaMap data={stats?.state_map_data} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -277,3 +330,5 @@ function StatsTable({ title, data }) {
     </div>
   );
 }
+
+

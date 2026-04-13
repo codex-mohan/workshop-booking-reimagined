@@ -378,6 +378,13 @@ class PublicStatisticsView(APIView):
         ws_states, ws_count = Workshop.objects.get_workshops_by_state(workshops)
         ws_type, ws_type_count = Workshop.objects.get_workshops_by_type(workshops)
 
+        state_code_map = {label: code for code, label in states if code}
+        state_map_data = [["State", "Workshops"]]
+        for i, label in enumerate(ws_states):
+            code = state_code_map.get(label, "")
+            if code:
+                state_map_data.append([code, ws_count[i]])
+
         import calendar
 
         current_year = timezone.now().year
@@ -401,6 +408,7 @@ class PublicStatisticsView(APIView):
                 "page": page,
                 "total_pages": (total + per_page - 1) // per_page,
                 "state_chart": {"labels": ws_states, "data": ws_count},
+                "state_map_data": state_map_data,
                 "type_chart": {"labels": ws_type, "data": ws_type_count},
                 "monthly_chart": {"labels": monthly_labels, "data": monthly_data},
             }
