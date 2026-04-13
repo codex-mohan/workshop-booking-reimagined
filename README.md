@@ -5,29 +5,46 @@ A modern redesign of the [FOSSEE Workshop Booking](https://github.com/FOSSEE/wor
 ## Visual Comparison
 
 ### Home Page
-| Before | After |
-|--------|-------|
-| ![Home Before](screenshots/home-before.png) | ![Home After](screenshots/home-after.png) |
-
-### Dashboard
-| Before | After |
-|--------|-------|
-| ![Dashboard Before](screenshots/dashboard-before.png) | ![Dashboard After](screenshots/dashboard-after.png) |
-
-### Statistics
-| Before | After |
-|--------|-------|
-| ![Stats Before](screenshots/stats-before.png) | ![Stats After](screenshots/stats-after.png) |
+| Desktop | Mobile |
+|---------|--------|
+| ![Home Desktop](screenshots/home-pc.png) | _(pending: old version)_ |
+| _(pending: reimagined)_ | ![Home Mobile](screenshots/home-mobile.png) |
 
 ### Login
-| Before | After |
-|--------|-------|
-| ![Login Before](screenshots/login-before.png) | ![Login After](screenshots/login-after.png) |
+| Desktop | Mobile |
+|---------|--------|
+| ![Login Desktop](screenshots/login-pc.png) | _(pending: old version)_ |
+| _(pending: reimagined)_ | ![Login Mobile](screenshots/login-mobile.png) |
 
 ### Registration
-| Before | After |
-|--------|-------|
-| ![Register Before](screenshots/register-before.png) | ![Register After](screenshots/register-after.png) |
+| Desktop | Mobile |
+|---------|--------|
+| ![Register Desktop](screenshots/register-pc.png) | _(pending: old version)_ |
+| _(pending: reimagined)_ | ![Register Mobile](screenshots/register-mobile.png) |
+
+### Dashboard
+| Desktop | Mobile |
+|---------|--------|
+| ![Dashboard Desktop](screenshots/dashboard-pc.png) | _(pending: old version)_ |
+| _(pending: reimagined)_ | ![Dashboard Mobile](screenshots/dashboard-mobile.png) |
+
+### Statistics
+| Desktop | Mobile |
+|---------|--------|
+| ![Statistics Desktop](screenshots/statistics-pc.png) | _(pending: old version)_ |
+| _(pending: reimagined)_ | ![Statistics Mobile](screenshots/statistics-mobile.png) |
+
+### Workshop Types
+| Desktop | Mobile |
+|---------|--------|
+| ![Workshop Types Desktop](screenshots/workshop-types-pc.png) | _(pending: old version)_ |
+| _(pending: reimagined)_ | ![Workshop Types Mobile](screenshots/workshop-types-mobile.png) |
+
+### Profile
+| Desktop | Mobile |
+|---------|--------|
+| ![Profile Desktop](screenshots/profile-pc.png) | _(pending: old version)_ |
+| _(pending: reimagined)_ | ![Profile Mobile](screenshots/profile-mobile.png) |
 
 ---
 
@@ -141,6 +158,71 @@ The built files go to `frontend/dist/` which can be served by Django with `colle
 | Font | Plus Jakarta Sans |
 | Backend | Django 5.2 LTS, Django REST Framework |
 | Auth | Django session auth + CORS |
+
+## API Endpoints
+
+All endpoints are prefixed with `/api/`.
+
+### Authentication
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/auth/csrf-token/` | Public | Returns CSRF token cookie |
+| `POST` | `/api/auth/register/` | Public | Register new coordinator account |
+| `POST` | `/api/auth/login/` | Public | Login with username/password |
+| `POST` | `/api/auth/logout/` | Required | Logout current session |
+| `GET` | `/api/auth/me/` | Required | Get current user (includes `is_instructor`, `is_admin`) |
+| `GET` | `/api/auth/activate/<key>/` | Public | Activate account via email link |
+
+### Workshops
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/workshops/coordinator/` | Coordinator | List coordinator's own workshops |
+| `GET` | `/api/workshops/instructor/` | Instructor | List instructor's workshops + pending |
+| `POST` | `/api/workshops/propose/` | Coordinator | Propose a new workshop |
+| `GET` | `/api/workshops/<pk>/` | Required | Get workshop details + comments |
+| `POST` | `/api/workshops/<pk>/accept/` | Instructor | Accept a workshop proposal |
+| `POST` | `/api/workshops/<pk>/reject/` | Instructor | Reject a workshop proposal |
+| `POST` | `/api/workshops/<pk>/change-date/` | Instructor | Reschedule a workshop |
+| `POST` | `/api/workshops/<workshop_id>/comments/` | Required | Add a comment to a workshop |
+
+### Workshop Types
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/workshop-types/` | Public | List all workshop types |
+| `GET` | `/api/workshop-types/<pk>/` | Public | Get workshop type details + T&C |
+| `POST` | `/api/workshop-types/create/` | Instructor | Create a new workshop type |
+| `PUT` | `/api/workshop-types/<pk>/update/` | Instructor | Update an existing workshop type |
+
+### Statistics
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/statistics/public/` | Public | Public stats: charts, map data, workshop list |
+| `GET` | `/api/statistics/instructor/` | Instructor/Admin | Instructor + coordinator count stats |
+| `GET` | `/api/filter-options/` | Public | Dropdown options: states, types, departments, etc. |
+
+Query params for `/api/statistics/public/`: `from_date`, `to_date`, `state`, `workshop_type`, `download` (returns CSV when `?download=1`)
+
+### Profile
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/profile/` | Required | Get own profile |
+| `PUT` | `/api/profile/` | Required | Update own profile |
+| `GET` | `/api/profile/<user_id>/` | Required | Get another user's public profile |
+
+### Admin
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/admin/users/` | Admin | List all users with roles |
+| `POST` | `/api/admin/users/<user_id>/promote/` | Admin | Promote user to instructor |
+| `POST` | `/api/admin/users/<user_id>/demote/` | Admin | Demote user to coordinator |
+| `POST` | `/api/admin/workshops/create/` | Admin | Create a workshop directly |
+| `DELETE` | `/api/admin/workshops/<pk>/delete/` | Admin | Delete a workshop |
 
 ## Project Structure
 ```

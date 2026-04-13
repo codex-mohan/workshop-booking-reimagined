@@ -394,6 +394,50 @@ class PublicStatisticsView(APIView):
                 monthly_data[ws.date.month - 1] += 1
         monthly_labels = [calendar.month_abbr[i] for i in range(1, 13)]
 
+        download = request.query_params.get("download")
+        if download:
+            state_code_map_full = {code: label for code, label in states if code}
+            rows = []
+            for ws in workshops:
+                rows.append(
+                    [
+                        ws.workshop_type.name if ws.workshop_type else "",
+                        ws.coordinator.get_full_name() if ws.coordinator else "",
+                        ws.coordinator.profile.institute
+                        if hasattr(ws.coordinator, "profile")
+                        and ws.coordinator.profile.institute
+                        else "",
+                        state_code_map_full.get(ws.coordinator.profile.state, "")
+                        if hasattr(ws.coordinator, "profile")
+                        and ws.coordinator.profile.state
+                        else "",
+                        str(ws.date) if ws.date else "",
+                        ws.instructor.get_full_name() if ws.instructor else "",
+                        "Confirmed"
+                        if ws.status == 1
+                        else ("Rejected" if ws.status == 2 else "Pending"),
+                    ]
+                )
+            import csv
+            from django.http import HttpResponse
+
+            response = HttpResponse(content_type="text/csv")
+            response["Content-Disposition"] = "attachment; filename=workshops.csv"
+            writer = csv.writer(response)
+            writer.writerow(
+                [
+                    "Workshop Type",
+                    "Coordinator",
+                    "Institute",
+                    "State",
+                    "Date",
+                    "Instructor",
+                    "Status",
+                ]
+            )
+            writer.writerows(rows)
+            return response
+
         page = int(request.query_params.get("page", 1))
         per_page = 30
         total = workshops.count()

@@ -39,6 +39,17 @@ export const profileApi = {
 export const statsApi = {
   getPublicStats: (params) => api.get("/statistics/public/", { params }),
   getInstructorStats: () => api.get("/statistics/instructor/"),
+  downloadCsv: (params) => {
+    const url = new URL("/api/statistics/public/", window.location.origin);
+    const searchParams = new URLSearchParams();
+    if (params?.from_date) searchParams.set("from_date", params.from_date);
+    if (params?.to_date) searchParams.set("to_date", params.to_date);
+    if (params?.state) searchParams.set("state", params.state);
+    if (params?.workshop_type) searchParams.set("workshop_type", params.workshop_type);
+    searchParams.set("download", "1");
+    url.search = searchParams.toString();
+    window.location.href = url.toString();
+  },
 };
 
 export const filterApi = {

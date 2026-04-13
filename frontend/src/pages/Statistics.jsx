@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from "recharts";
-import { BarChart3, Filter, Calendar, MapPin, Users } from "lucide-react";
+import { BarChart3, Filter, Calendar, MapPin, Users, Download } from "lucide-react";
 import { SkeletonChart, SkeletonRow } from "../components/Skeleton";
 
 function IndiaMap({ data }) {
@@ -20,12 +20,17 @@ function IndiaMap({ data }) {
     const drawChart = () => {
       if (!window.google?.visualization?.GeoChart || !containerRef.current) return;
       const el = containerRef.current;
-      el.style.width = el.offsetWidth + "px";
+      const w = el.offsetWidth;
+      const h = Math.round(w * 0.6);
+      el.style.width = w + "px";
+      el.style.height = h + "px";
       const chart = new window.google.visualization.GeoChart(el);
       const tableData = window.google.visualization.arrayToDataTable(data);
       chart.draw(tableData, {
         region: "IN",
         resolution: "provinces",
+        width: w,
+        height: h,
         colorAxis: { colors: ["#e8f0fe", "#0070f3"] },
         datalessRegionColor: "#f5f5f5",
         defaultColor: "#f5f5f5",
@@ -56,7 +61,7 @@ function IndiaMap({ data }) {
     return <p className="text-sm text-gray-400 text-center py-8 font-light">No map data available</p>;
   }
 
-  return <div ref={containerRef} style={{ width: "100%", height: 350 }} />;
+  return <div ref={containerRef} className="w-full" style={{ height: 0, paddingBottom: "60%" }} />;
 }
 
 export default function Statistics() {
@@ -146,13 +151,22 @@ export default function Statistics() {
           </div>
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Workshop Statistics</h1>
         </div>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
-        >
-          <Filter className="w-4 h-4" />
-          <span className="hidden sm:inline">Filters</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => statsApi.downloadCsv({ from_date: fromDate, to_date: toDate, state: selectedState, workshop_type: selectedType })}
+            className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+          >
+            <Filter className="w-4 h-4" />
+            <span className="hidden sm:inline">Filters</span>
+          </button>
+        </div>
       </div>
 
       {showFilters && (
